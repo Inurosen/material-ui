@@ -1,11 +1,16 @@
-import merge from 'lodash.merge';
-import Colors from './colors';
-import ColorManipulator from '../utils/color-manipulator';
+import merge from 'lodash/merge';
+import {darken, fade, emphasize, lighten} from '../utils/colorManipulator';
 import lightBaseTheme from './baseThemes/lightBaseTheme';
 import zIndex from './zIndex';
-import {autoprefixer, callOnce, rtl} from './transformers';
-import compose from 'lodash.flowright';
-import Typography from '../styles/typography';
+import autoprefixer from '../utils/autoprefixer';
+import callOnce from '../utils/callOnce';
+import rtl from '../utils/rtl';
+import compose from 'recompose/compose';
+import typography from './typography';
+import {
+  red500, grey400, grey500, grey600, grey700,
+  transparent, lightWhite, white, darkWhite, lightBlack, black,
+} from './colors';
 
 /**
  * Get the MUI theme corresponding to a base theme.
@@ -20,41 +25,29 @@ export default function getMuiTheme(muiTheme, ...more) {
     userAgent: undefined,
   }, lightBaseTheme, muiTheme, ...more);
 
-  const {
-    spacing,
-    fontFamily,
-    palette,
-  } = muiTheme;
-
-  const baseTheme = {
-    spacing,
-    fontFamily,
-    palette,
-  };
+  const {spacing, fontFamily, palette} = muiTheme;
+  const baseTheme = {spacing, fontFamily, palette};
 
   muiTheme = merge({
     appBar: {
       color: palette.primary1Color,
       textColor: palette.alternateTextColor,
       height: spacing.desktopKeylineIncrement,
-      titleFontWeight: Typography.fontWeightNormal,
+      titleFontWeight: typography.fontWeightNormal,
       padding: spacing.desktopGutter,
     },
     avatar: {
       color: palette.canvasColor,
-      backgroundColor: ColorManipulator.luminance(palette.canvasColor) > 0.5 ?
-        ColorManipulator.darken(palette.canvasColor, 0.26) :
-        ColorManipulator.lighten(palette.canvasColor, 1.26, 1.0),
-      borderColor: ColorManipulator.fade(palette.textColor, 0.08),
+      backgroundColor: emphasize(palette.canvasColor, 0.26),
     },
     badge: {
       color: palette.alternateTextColor,
       textColor: palette.textColor,
-      primaryColor: palette.accent1Color,
+      primaryColor: palette.primary1Color,
       primaryTextColor: palette.alternateTextColor,
-      secondaryColor: palette.primary1Color,
+      secondaryColor: palette.accent1Color,
       secondaryTextColor: palette.alternateTextColor,
-      fontWeight: Typography.fontWeightMedium,
+      fontWeight: typography.fontWeightMedium,
     },
     button: {
       height: 36,
@@ -62,15 +55,15 @@ export default function getMuiTheme(muiTheme, ...more) {
       iconButtonSize: spacing.iconSize * 2,
     },
     card: {
-      titleColor: ColorManipulator.fade(palette.textColor, 0.87),
-      subtitleColor: ColorManipulator.fade(palette.textColor, 0.54),
-      fontWeight: Typography.fontWeightMedium,
+      titleColor: fade(palette.textColor, 0.87),
+      subtitleColor: fade(palette.textColor, 0.54),
+      fontWeight: typography.fontWeightMedium,
     },
     cardMedia: {
-      color: Colors.darkWhite,
-      overlayContentBackground: Colors.lightBlack,
-      titleColor: Colors.darkWhite,
-      subtitleColor: Colors.lightWhite,
+      color: darkWhite,
+      overlayContentBackground: lightBlack,
+      titleColor: darkWhite,
+      subtitleColor: lightWhite,
     },
     cardText: {
       textColor: palette.textColor,
@@ -83,57 +76,73 @@ export default function getMuiTheme(muiTheme, ...more) {
       labelColor: palette.textColor,
       labelDisabledColor: palette.disabledColor,
     },
+    chip: {
+      backgroundColor: emphasize(palette.canvasColor, 0.12),
+      deleteIconColor: fade(palette.textColor, 0.26),
+      textColor: fade(palette.textColor, 0.87),
+      fontSize: 14,
+      fontWeight: typography.fontWeightNormal,
+      shadow: `0 1px 6px ${fade(palette.shadowColor, 0.12)},
+        0 1px 4px ${fade(palette.shadowColor, 0.12)}`,
+    },
     datePicker: {
       color: palette.primary1Color,
       textColor: palette.alternateTextColor,
       calendarTextColor: palette.textColor,
       selectColor: palette.primary2Color,
       selectTextColor: palette.alternateTextColor,
-      calendarYearBackgroundColor: Colors.white,
+      calendarYearBackgroundColor: white,
+    },
+    dialog: {
+      titleFontSize: 22,
+      bodyFontSize: 16,
+      bodyColor: fade(palette.textColor, 0.6),
     },
     dropDownMenu: {
       accentColor: palette.borderColor,
     },
     enhancedButton: {
-      tapHighlightColor: Colors.transparent,
+      tapHighlightColor: transparent,
     },
     flatButton: {
-      color: Colors.transparent,
+      color: transparent,
       buttonFilterColor: '#999999',
-      disabledTextColor: ColorManipulator.fade(palette.textColor, 0.3),
+      disabledTextColor: fade(palette.textColor, 0.3),
       textColor: palette.textColor,
-      primaryTextColor: palette.accent1Color,
-      secondaryTextColor: palette.primary1Color,
-      fontSize: Typography.fontStyleButtonFontSize,
-      fontWeight: Typography.fontWeightMedium,
+      primaryTextColor: palette.primary1Color,
+      secondaryTextColor: palette.accent1Color,
+      fontSize: typography.fontStyleButtonFontSize,
+      fontWeight: typography.fontWeightMedium,
     },
     floatingActionButton: {
       buttonSize: 56,
       miniSize: 40,
-      color: palette.accent1Color,
+      color: palette.primary1Color,
       iconColor: palette.alternateTextColor,
-      secondaryColor: palette.primary1Color,
+      secondaryColor: palette.accent1Color,
       secondaryIconColor: palette.alternateTextColor,
       disabledTextColor: palette.disabledColor,
-      disabledColor: ColorManipulator.luminance(palette.canvasColor) > 0.5 ?
-        ColorManipulator.darken(palette.canvasColor, 0.12) :
-        ColorManipulator.lighten(palette.canvasColor, 1.12, 1.0),
+      disabledColor: emphasize(palette.canvasColor, 0.12),
     },
     gridTile: {
-      textColor: Colors.white,
+      textColor: white,
+    },
+    icon: {
+      color: palette.canvasColor,
+      backgroundColor: palette.primary1Color,
     },
     inkBar: {
       backgroundColor: palette.accent1Color,
     },
-    leftNav: {
+    drawer: {
       width: spacing.desktopKeylineIncrement * 4,
       color: palette.canvasColor,
     },
     listItem: {
       nestedLevelDepth: 18,
-      secondaryTextColor: Colors.lightBlack,
-      leftIconColor: Colors.grey600,
-      rightIconColor: Colors.grey400,
+      secondaryTextColor: lightBlack,
+      leftIconColor: grey600,
+      rightIconColor: grey600,
     },
     menu: {
       backgroundColor: palette.canvasColor,
@@ -142,10 +151,10 @@ export default function getMuiTheme(muiTheme, ...more) {
     menuItem: {
       dataHeight: 32,
       height: 48,
-      hoverColor: ColorManipulator.fade(palette.textColor, 0.035),
+      hoverColor: fade(palette.textColor, 0.035),
       padding: spacing.desktopGutter,
       selectedTextColor: palette.accent1Color,
-      rightIconDesktopFill: Colors.grey600,
+      rightIconDesktopFill: grey600,
     },
     menuSubheader: {
       padding: spacing.desktopGutter,
@@ -153,7 +162,7 @@ export default function getMuiTheme(muiTheme, ...more) {
       textColor: palette.primary1Color,
     },
     overlay: {
-      backgroundColor: Colors.lightBlack,
+      backgroundColor: lightBlack,
     },
     paper: {
       color: palette.textColor,
@@ -165,8 +174,8 @@ export default function getMuiTheme(muiTheme, ...more) {
         [14, 45, 0.25, 10, 18, 0.22],
         [19, 60, 0.30, 15, 20, 0.22],
       ].map((d) => (
-        `0 ${d[0]}px ${d[1]}px ${ColorManipulator.fade(palette.shadowColor, d[2])},
-         0 ${d[3]}px ${d[4]}px ${ColorManipulator.fade(palette.shadowColor, d[5])}`
+        `0 ${d[0]}px ${d[1]}px ${fade(palette.shadowColor, d[2])},
+         0 ${d[3]}px ${d[4]}px ${fade(palette.shadowColor, d[5])}`
       )),
     },
     radioButton: {
@@ -182,20 +191,21 @@ export default function getMuiTheme(muiTheme, ...more) {
     raisedButton: {
       color: palette.alternateTextColor,
       textColor: palette.textColor,
-      primaryColor: palette.accent1Color,
+      primaryColor: palette.primary1Color,
       primaryTextColor: palette.alternateTextColor,
-      secondaryColor: palette.primary1Color,
+      secondaryColor: palette.accent1Color,
       secondaryTextColor: palette.alternateTextColor,
-      disabledColor: ColorManipulator.darken(palette.alternateTextColor, 0.1),
-      disabledTextColor: ColorManipulator.fade(palette.textColor, 0.3),
-      fontWeight: Typography.fontWeightMedium,
+      disabledColor: darken(palette.alternateTextColor, 0.1),
+      disabledTextColor: fade(palette.textColor, 0.3),
+      fontSize: typography.fontStyleButtonFontSize,
+      fontWeight: typography.fontWeightMedium,
     },
     refreshIndicator: {
       strokeColor: palette.borderColor,
       loadingStrokeColor: palette.primary1Color,
     },
     ripple: {
-      color: ColorManipulator.fade(palette.textColor, 0.87),
+      color: fade(palette.textColor, 0.87),
     },
     slider: {
       trackSize: 2,
@@ -215,11 +225,25 @@ export default function getMuiTheme(muiTheme, ...more) {
       actionColor: palette.accent1Color,
     },
     subheader: {
-      color: ColorManipulator.fade(palette.textColor, 0.54),
-      fontWeight: Typography.fontWeightMedium,
+      color: fade(palette.textColor, 0.54),
+      fontWeight: typography.fontWeightMedium,
+    },
+    stepper: {
+      backgroundColor: 'transparent',
+      hoverBackgroundColor: fade(black, 0.06),
+      iconColor: palette.primary1Color,
+      hoveredIconColor: grey700,
+      inactiveIconColor: grey500,
+      textColor: fade(black, 0.87),
+      disabledTextColor: fade(black, 0.26),
+      connectorLineColor: grey400,
     },
     table: {
       backgroundColor: palette.canvasColor,
+    },
+    tableFooter: {
+      borderColor: palette.borderColor,
+      textColor: palette.accent3Color,
     },
     tableHeader: {
       borderColor: palette.borderColor,
@@ -229,13 +253,9 @@ export default function getMuiTheme(muiTheme, ...more) {
       height: 56,
       spacing: 24,
     },
-    tableFooter: {
-      borderColor: palette.borderColor,
-      textColor: palette.accent3Color,
-    },
     tableRow: {
       hoverColor: palette.accent2Color,
-      stripeColor: ColorManipulator.lighten(palette.primary1Color, 0.55),
+      stripeColor: fade(lighten(palette.primary1Color, 0.5), 0.4),
       selectedColor: palette.borderColor,
       textColor: palette.textColor,
       borderColor: palette.borderColor,
@@ -244,6 +264,21 @@ export default function getMuiTheme(muiTheme, ...more) {
     tableRowColumn: {
       height: 48,
       spacing: 24,
+    },
+    tabs: {
+      backgroundColor: palette.primary1Color,
+      textColor: fade(palette.alternateTextColor, 0.7),
+      selectedTextColor: palette.alternateTextColor,
+    },
+    textField: {
+      textColor: palette.textColor,
+      hintColor: palette.disabledColor,
+      floatingLabelColor: palette.textColor,
+      disabledTextColor: palette.disabledColor,
+      errorColor: red500,
+      focusColor: palette.primary1Color,
+      backgroundColor: 'transparent',
+      borderColor: palette.borderColor,
     },
     timePicker: {
       color: palette.alternateTextColor,
@@ -260,41 +295,26 @@ export default function getMuiTheme(muiTheme, ...more) {
       thumbOffColor: palette.accent2Color,
       thumbDisabledColor: palette.borderColor,
       thumbRequiredColor: palette.primary1Color,
-      trackOnColor: ColorManipulator.fade(palette.primary1Color, 0.5),
+      trackOnColor: fade(palette.primary1Color, 0.5),
       trackOffColor: palette.primary3Color,
       trackDisabledColor: palette.primary3Color,
       labelColor: palette.textColor,
       labelDisabledColor: palette.disabledColor,
-      trackRequiredColor: ColorManipulator.fade(palette.primary1Color, 0.5),
+      trackRequiredColor: fade(palette.primary1Color, 0.5),
     },
     toolbar: {
-      color: ColorManipulator.fade(palette.textColor, 0.54),
-      hoverColor: ColorManipulator.fade(palette.textColor, 0.87),
-      backgroundColor: ColorManipulator.darken(palette.accent2Color, 0.05),
+      color: fade(palette.textColor, 0.54),
+      hoverColor: fade(palette.textColor, 0.87),
+      backgroundColor: darken(palette.accent2Color, 0.05),
       height: 56,
       titleFontSize: 20,
-      iconColor: ColorManipulator.fade(palette.textColor, 0.4),
-      separatorColor: ColorManipulator.fade(palette.textColor, 0.175),
-      menuHoverColor: ColorManipulator.fade(palette.textColor, 0.1),
+      iconColor: fade(palette.textColor, 0.4),
+      separatorColor: fade(palette.textColor, 0.175),
+      menuHoverColor: fade(palette.textColor, 0.1),
     },
     tooltip: {
-      color: Colors.white,
-      rippleBackgroundColor: Colors.grey700,
-    },
-    tabs: {
-      backgroundColor: palette.primary1Color,
-      textColor: ColorManipulator.fade(palette.alternateTextColor, 0.7),
-      selectedTextColor: palette.alternateTextColor,
-    },
-    textField: {
-      textColor: palette.textColor,
-      hintColor: palette.disabledColor,
-      floatingLabelColor: palette.textColor,
-      disabledTextColor: palette.disabledColor,
-      errorColor: Colors.red500,
-      focusColor: palette.primary1Color,
-      backgroundColor: 'transparent',
-      borderColor: palette.borderColor,
+      color: white,
+      rippleBackgroundColor: grey700,
     },
   }, muiTheme, {
     baseTheme, // To provide backward compatibility.
